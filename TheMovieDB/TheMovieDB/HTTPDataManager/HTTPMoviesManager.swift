@@ -11,11 +11,10 @@ import Alamofire
 
 class HTTPMoviesManager {
     
-    static func searchMovieByName(query : String, page : Int = 1, completion: @escaping ([String: Any]) -> ()) {
+    static func searchMovies(url: String, query : String, page : Int = 1, completion: @escaping ([String: Any]) -> ()) {
         
         let apiKey = ApplicationConstants.theMovieDBAPIKey
-        let searchMovieByNameURL = ApplicationConstants.theMovieDBSearchByMovieNameURL
-        
+        let searchMovieByNameURL = url
         
         Alamofire.request(
             searchMovieByNameURL,

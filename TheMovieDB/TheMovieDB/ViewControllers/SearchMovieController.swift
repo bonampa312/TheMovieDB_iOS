@@ -11,9 +11,11 @@ import UIKit
 import Alamofire
 
 class SearchMovieController: UIViewController, UITextFieldDelegate {
-
+    
+    private var movies : MovieList?
+    @IBOutlet var listsButtons: [UIButton]!
+    
     @IBOutlet weak var movieNameSearch: UITextField!
-    @IBOutlet weak var resultsAmount: UILabel!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     
     override func viewDidLoad() {
@@ -23,42 +25,50 @@ class SearchMovieController: UIViewController, UITextFieldDelegate {
         self.movieNameSearch.delegate = self
         
         loadingIndicator.isHidden = true
-        resultsAmount.isHidden = true
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        searchMovies()
+        searchMoviesByName()
         return true;
     }
     
     @IBAction func SearchMovies(_ sender: Any) {
-        searchMovies()
+        searchMoviesByName()
     }
     
-    func searchMovies() {
+    func searchMoviesByName() {
         loadingIndicator.isHidden = false
-        resultsAmount.isHidden = true
-        resultsAmount.text = ""
         MovieFacade.searchMoviesBy(name: movieNameSearch.text!, page: 1, completion: { moviesByName in
             self.loadingIndicator.isHidden = true
             if let moviesList = moviesByName {
-                self.resultsAmount.text = String(describing: moviesList.totalResults!) + " results"
-                self.resultsAmount.isHidden = false
+                self.movies = moviesList
                 for movie in moviesList.movies! {
                     print(movie.title)
                 }
             } else {
                 print("No movies to show, error on request")
-                self.resultsAmount.text = "An error has occurred, look at the console 😰"
-                self.resultsAmount.textColor = #colorLiteral(red: 0.9994240403, green: 0.9855536819, blue: 0, alpha: 1)
-                self.resultsAmount.isHidden = false
             }
         })
     }
+    
+    func searchMoviesList(listToSearch: String) {
+        loadingIndicator.isHidden = false
+        MovieFacade.searchMoviesBy(listTitle: listToSearch, page: 1, completion: { moviesByList in
+            self.loadingIndicator.isHidden = true
+            if let moviesList = moviesByList {
+                self.movies = moviesList
+                for movie in moviesList.movies! {
+                    print(movie.title)
+                }
+            } else {
+                print("No movies to show, error on request")
+            }
+        })
+    }
+
+    @IBAction func searchMoviesList(_ sender: UIButton) {
+        self.searchMoviesList(listToSearch: (sender.titleLabel?.text)!)
+    }
+    
 }
