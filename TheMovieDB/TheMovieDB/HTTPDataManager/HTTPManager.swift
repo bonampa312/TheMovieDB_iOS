@@ -9,7 +9,7 @@
 import Foundation
 import Alamofire
 
-class HTTPMoviesManager {
+class HTTPManager {
     
     static func searchMovies(url: String, query : String, page : Int = 1, completion: @escaping ([String: Any]) -> ()) {
         

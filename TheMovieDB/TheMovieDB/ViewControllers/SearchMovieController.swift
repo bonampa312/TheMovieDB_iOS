@@ -54,12 +54,12 @@ class SearchMovieController: UIViewController, UITextFieldDelegate {
     
     func searchMoviesByName() {
         let page = 1
-        MovieFacade.searchMoviesBy(name: movieNameSearch.text!, page: page, completion: { moviesByName in
+        MovieFacade.searchMoviesBy(name: movieNameSearch.text!, page: page, completion: {[weak self] moviesByName in
             if let moviesList = moviesByName {
-                self.movies = moviesList
-                self.resultsAmount.text = String(moviesList.totalResults!) + " results"
-                self.currentPage.text = "Page \(page) of \(String(moviesList.totalPages!))"
-                self.customList.reloadAllData()
+                self?.movies = moviesList
+                self?.resultsAmount.text = String(moviesList.totalResults!) + " results"
+                self?.currentPage.text = "Page \(page) of \(String(moviesList.totalPages!))"
+                self?.customList.reloadAllData()
             } else {
                 print("No movies to show, error on request")
             }
@@ -80,12 +80,12 @@ class SearchMovieController: UIViewController, UITextFieldDelegate {
             default:
                 self.currentList.text = ""
         }
-        MovieFacade.searchMoviesBy(listTitle: listToSearch, page: page, completion: { moviesByList in
+        MovieFacade.searchMoviesBy(listTitle: listToSearch, page: page, completion: { [weak self] moviesByList in
             if let moviesList = moviesByList {
-                self.movies = moviesList
-                self.resultsAmount.text = String(moviesList.totalResults!) + " results"
-                self.currentPage.text = "Page \(page) of \(String(moviesList.totalPages!))"
-                self.customList.reloadAllData()
+                self?.movies = moviesList
+                self?.resultsAmount.text = String(moviesList.totalResults!) + " results"
+                self?.currentPage.text = "Page \(page) of \(String(moviesList.totalPages!))"
+                self?.customList.reloadAllData()
             } else {
                 print("No movies to show, error on request")
             }
@@ -104,11 +104,6 @@ class SearchMovieController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func changeListType(_ sender: Any) {
-//        if listKind == ListKind.table {
-//            listKind = ListKind.collection
-//        } else {
-//            listKind = ListKind.table
-//        }
         listKind = (listKind == ListKind.table) ? .collection : .table
         self.setListType()
     }
@@ -165,6 +160,11 @@ extension SearchMovieController : CustomListDelegate {
         }  else {
             cell.movieImage.image = UIImage(named: "DefaultImage")
         }
+    }
+    func didSelectRow(atIndex index: Int) {
+        let detailController = self.storyboard?.instantiateViewController(withIdentifier: String(describing: MovieDetailViewController.self)) as! MovieDetailViewController
+        detailController.movie = movies?.movies![index]
+        present(detailController, animated: true)
     }
 }
 

@@ -55,6 +55,14 @@ private extension CustomListTableView {
     func configure() {
         register(UINib(nibName: "CustomTableViewCell", bundle: nil), forCellReuseIdentifier: cellIdentifier)
         dataSource = self
+        delegate = self
+    }
+}
+
+extension CustomListTableView : UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        customDelegate?.didSelectRow(atIndex: indexPath.row)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 

@@ -20,13 +20,7 @@ class MovieList {
             self.totalResults = jsonObject["total_results"]! as? Int
             for movie in moviesListResponse {
                 self.movies!.append(
-                    MovieData(
-                        title: (movie["title"]! as? String),
-                        releaseDate: (movie["release_date"]! as? String),
-                        overview: (movie["overview"]! as? String),
-                        voteAverage: (movie["vote_average"]! as? Double),
-                        posterPath: (movie["poster_path"]! as? String)
-                    )
+                    MovieData( jsonMovieObject: movie )
                 )
             }
         }

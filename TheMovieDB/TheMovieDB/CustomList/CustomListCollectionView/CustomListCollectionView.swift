@@ -70,7 +70,7 @@ extension CustomListCollectionView : UICollectionViewDataSource {
     }
 }
 
-extension CustomListCollectionView : UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
+extension CustomListCollectionView : UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let collectionWidth = collectionView.bounds.width
         let blankSpaces = leftPadding + middleSpaceBetweenCells
@@ -80,4 +80,9 @@ extension CustomListCollectionView : UICollectionViewDelegateFlowLayout, UIColle
     }
 }
 
+extension CustomListCollectionView : UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        customDelegate?.didSelectRow(atIndex: indexPath.row)
+    }
+}
 

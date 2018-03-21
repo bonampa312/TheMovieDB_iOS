@@ -15,5 +15,6 @@ protocol Movie {
     var overview : String { get set }
     var voteAverage : Double { get set }
     var posterPath : String { get set }
+    var backdropPath : String { get set }
     
 }

@@ -12,5 +12,6 @@ protocol CustomListDelegate : class {
     
     func numberOfCells() -> Int
     func configureCell(cell: CustomListCell, index: Int)
+    func didSelectRow(atIndex index: Int)
     
 }

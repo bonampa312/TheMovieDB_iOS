@@ -13,7 +13,7 @@ class MovieFacade {
     static func searchMoviesBy(name: String, page: Int, completion : @escaping (MovieList?) -> ()) {
         let searchByNameURL = ApplicationConstants.theMovieDBSearchByMovieNameURL
         let query = name.isEmpty ? "Finding Nemo" : name
-        HTTPMoviesManager.searchMovies(url: searchByNameURL, query: query, page: 1, completion: { moviesResponse in
+        HTTPManager.searchMovies(url: searchByNameURL, query: query, page: 1, completion: { moviesResponse in
             if !moviesResponse.isEmpty {
                 completion(MovieList(jsonObject: moviesResponse))
             } else {
@@ -39,7 +39,7 @@ class MovieFacade {
         default:
             break
         }
-        HTTPMoviesManager.searchMovies(url: listURL, query: query, page: 1, completion: { moviesResponse in
+        HTTPManager.searchMovies(url: listURL, query: query, page: 1, completion: { moviesResponse in
             if !moviesResponse.isEmpty {
                 completion(MovieList(jsonObject: moviesResponse))
             } else {

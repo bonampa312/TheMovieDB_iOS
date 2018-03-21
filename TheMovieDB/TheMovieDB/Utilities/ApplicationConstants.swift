@@ -12,7 +12,10 @@ class ApplicationConstants {
     
     static let theMovieDBAPIKey : String = "1f4d7de5836b788bdfd897c3e0d0a24b"
     static let theMovieDBAPIBaseURL : String = "https://api.themoviedb.org/3"
-    static let theMovieDBAPIMoviePosterURL : String = "https://image.tmdb.org/t/p/w154"
+    
+    static let theMovieDBAPIMovieImageBaseURL : String = "https://image.tmdb.org/t/p/"
+    static let theMovieDBAPIMoviePosterURL : String = theMovieDBAPIMovieImageBaseURL + "w154"
+    static let theMovieDBAPIMovieBackdropURL : String = theMovieDBAPIMovieImageBaseURL + "w780"
     
     static let theMovieDBSearchByMovieNameURL : String = theMovieDBAPIBaseURL+"/search/movie"
     static let theMovieDBGetLatestURL : String = theMovieDBAPIBaseURL+"/movie/latest"
