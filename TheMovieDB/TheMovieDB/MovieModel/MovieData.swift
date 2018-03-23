@@ -9,6 +9,7 @@
 import Foundation
 
 class MovieData : Movie {
+    
     var title: String
     var releaseDate: String
     var overview: String
@@ -25,14 +26,32 @@ class MovieData : Movie {
         self.backdropPath = backdropPath ?? ""
     }
     
-    convenience init(jsonMovieObject: [String: Any]) {
-        self.init(
-            title: (jsonMovieObject["title"]! as? String),
-            releaseDate: (jsonMovieObject["release_date"]! as? String),
-            overview: (jsonMovieObject["overview"]! as? String),
-            voteAverage: (jsonMovieObject["vote_average"]! as? Double),
-            posterPath: (jsonMovieObject["poster_path"]! as? String),
-            backdropPath: (jsonMovieObject["backdrop_path"]! as? String)
+    convenience init(jsonMovieObject: [String: Any]?) {
+        if let jsonMovie = jsonMovieObject {
+            self.init(
+                title: (jsonMovie["title"] as? String),
+                releaseDate: (jsonMovie["release_date"] as? String),
+                overview: (jsonMovie["overview"] as? String),
+                voteAverage: (jsonMovie["vote_average"] as? Double),
+                posterPath: (jsonMovie["poster_path"] as? String),
+                backdropPath: (jsonMovie["backdrop_path"] as? String)
+            )
+        } else {
+            self.init(title: nil, releaseDate: nil, overview: nil, voteAverage: nil, posterPath: nil, backdropPath: nil)
+        }
+    }
+    
+}
+
+extension MovieData : Equatable {
+    static func ==(lhs: MovieData, rhs: MovieData) -> Bool {
+        return (
+            lhs.title == rhs.title &&
+            lhs.releaseDate == rhs.releaseDate &&
+            lhs.overview == rhs.overview &&
+            lhs.voteAverage == rhs.voteAverage &&
+            lhs.posterPath == rhs.posterPath &&
+            lhs.backdropPath == rhs.backdropPath
         )
     }
 }

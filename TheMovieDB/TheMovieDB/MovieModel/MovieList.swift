@@ -13,16 +13,30 @@ class MovieList {
     var totalPages : Int?
     var movies : [Movie]?
 
-    init?( jsonObject : [String : Any] ) {
-        self.movies = [Movie]()
-        if let moviesListResponse = jsonObject["results"] as? [[String : Any]] {
-            self.totalPages = jsonObject["total_pages"]! as? Int
-            self.totalResults = jsonObject["total_results"]! as? Int
+    init(totalResults : Int?, totalPages : Int?, movies : [Movie]?){
+        self.totalResults = totalResults ?? 0
+        self.totalPages = totalPages ?? 0
+        self.movies = movies ?? [Movie]()
+    }
+    
+    convenience init( jsonObject : [String : Any]? ) {
+        if let moviesList = jsonObject,
+            let moviesListResponse = moviesList["results"] as? [[String : Any]],
+            let moviesListTotalResults = moviesList["total_results"] as? Int,
+            let moviesListTotalPages = moviesList["total_pages"] as? Int {
+            var movies = [Movie]()
             for movie in moviesListResponse {
-                self.movies!.append(
+                movies.append(
                     MovieData( jsonMovieObject: movie )
                 )
             }
+            self.init(
+                totalResults : moviesListTotalResults,
+                totalPages : moviesListTotalPages,
+                movies : movies
+            )
+        } else {
+            self.init(totalResults : nil, totalPages : nil, movies : nil)
         }
     }
 }

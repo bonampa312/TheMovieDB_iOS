@@ -11,19 +11,15 @@ import UIKit
 import Alamofire
 import AlamofireImage
 
-class SearchMovieController: UIViewController, UITextFieldDelegate {
+class MovieViewController: UIViewController, UITextFieldDelegate {
     
-    fileprivate var movies : MovieList?
     fileprivate var customList : CustomList!
-    private var listKind : ListKind = ListKind.table
+    var presenter : ListMoviePresenter!
 
-    
     @IBOutlet weak var changeListButton: UIBarButtonItem!
     @IBOutlet var listsButtons: [UIButton]!
-    
     @IBOutlet weak var movieNameSearch: UITextField!
     @IBOutlet weak var listViewContainer: UIView!
-    
     @IBOutlet weak var resultsAmount: UILabel!
     @IBOutlet weak var currentPage: UILabel!
     @IBOutlet weak var currentList: UILabel!
@@ -32,6 +28,8 @@ class SearchMovieController: UIViewController, UITextFieldDelegate {
         
         super.viewDidLoad()
         self.movieNameSearch.delegate = self
+        let movieFacade = MovieFacade()
+        self.presenter = ListMoviePresenter(view: self as ListMoviesView, service: movieFacade)
         self.setListType()
         
     }
@@ -44,52 +42,12 @@ class SearchMovieController: UIViewController, UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        searchMoviesByName()
+        self.presenter.searchMoviesByName(name : movieNameSearch.text!)
         return true;
     }
     
     @IBAction func SearchMovies(_ sender: Any) {
-        searchMoviesByName()
-    }
-    
-    func searchMoviesByName() {
-        let page = 1
-        MovieFacade.searchMoviesBy(name: movieNameSearch.text!, page: page, completion: {[weak self] moviesByName in
-            if let moviesList = moviesByName {
-                self?.movies = moviesList
-                self?.resultsAmount.text = String(moviesList.totalResults!) + " results"
-                self?.currentPage.text = "Page \(page) of \(String(moviesList.totalPages!))"
-                self?.customList.reloadAllData()
-            } else {
-                print("No movies to show, error on request")
-            }
-        })
-    }
-    
-    func searchMoviesList(listToSearch: String) {
-        let page = 1
-        switch (listToSearch) {
-            case "Now":
-                self.currentList.text = "Now Playing"
-            case "Popular":
-                self.currentList.text = "Popular Movies"
-            case "Top":
-                self.currentList.text = "Top Rated Movies"
-            case "Soon":
-                self.currentList.text = "Coming Soon"
-            default:
-                self.currentList.text = ""
-        }
-        MovieFacade.searchMoviesBy(listTitle: listToSearch, page: page, completion: { [weak self] moviesByList in
-            if let moviesList = moviesByList {
-                self?.movies = moviesList
-                self?.resultsAmount.text = String(moviesList.totalResults!) + " results"
-                self?.currentPage.text = "Page \(page) of \(String(moviesList.totalPages!))"
-                self?.customList.reloadAllData()
-            } else {
-                print("No movies to show, error on request")
-            }
-        })
+        self.presenter.searchMoviesByName(name : movieNameSearch.text!)
     }
 
     @IBAction func searchMoviesList(_ sender: UIButton) {
@@ -100,15 +58,15 @@ class SearchMovieController: UIViewController, UITextFieldDelegate {
                 button.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
             }
         }
-        self.searchMoviesList(listToSearch: (sender.titleLabel?.text)!)
+        
+        self.presenter.searchMoviesList(listToSearch: (sender.titleLabel?.text)!)
     }
     
     @IBAction func changeListType(_ sender: Any) {
-        listKind = (listKind == ListKind.table) ? .collection : .table
-        self.setListType()
+        self.presenter.changeListKind()
     }
     
-    private func setListType() {
+    fileprivate func setListType() {
         
         for view in self.listViewContainer.subviews {
             view.removeFromSuperview()
@@ -116,7 +74,7 @@ class SearchMovieController: UIViewController, UITextFieldDelegate {
         
         let customListFrame = CGRect(x: 0, y: 0, width: self.listViewContainer.frame.width, height: self.listViewContainer.frame.height)
         
-        if listKind == ListKind.table {
+        if presenter.listKind == EnumDataTypes.ListKind.table {
             customList = CustomListTableView(frame: customListFrame)
             self.changeListButton.title = "⌗"
         } else {
@@ -136,24 +94,25 @@ class SearchMovieController: UIViewController, UITextFieldDelegate {
         
         self.listViewContainer.autoresizesSubviews = true
         
-        self.searchMoviesList(listToSearch: "Now")
+        self.presenter.searchMoviesList(listToSearch: "Now")
     }
     
 }
 
 
-extension SearchMovieController : CustomListDelegate {
+extension MovieViewController : CustomListDelegate {
     
     func numberOfCells() -> Int {
-        let numberOfMovies = self.movies?.movies!.count
+        let numberOfMovies = self.presenter.movies?.movies?.count
         return numberOfMovies ?? 0
     }
     
     func configureCell(cell: CustomListCell, index: Int) {
-        cell.movieTitle.text = self.movies?.movies![index].title
-        cell.movieDescription.text = self.movies?.movies![index].overview
+        let movieCell = self.presenter.movies?.movies![index]
+        cell.movieTitle.text = movieCell?.title
+        cell.movieDescription.text = movieCell?.overview
         
-        let posterID = (self.movies?.movies![index].posterPath)!
+        let posterID = (movieCell?.posterPath)!
         let imageURL = posterID.isEmpty ? nil : URL(string: ApplicationConstants.theMovieDBAPIMoviePosterURL + posterID)
         if (imageURL != nil) {
           cell.movieImage.af_setImage(withURL: imageURL!)
@@ -162,15 +121,26 @@ extension SearchMovieController : CustomListDelegate {
         }
     }
     func didSelectRow(atIndex index: Int) {
+        let movieCell = self.presenter.movies?.movies![index]
         let detailController = self.storyboard?.instantiateViewController(withIdentifier: String(describing: MovieDetailViewController.self)) as! MovieDetailViewController
-        detailController.movie = movies?.movies![index]
+        detailController.movie = movieCell
         present(detailController, animated: true)
     }
 }
 
-extension SearchMovieController {
+extension MovieViewController : ListMoviesView {
     
-    fileprivate enum ListKind {
-        case table, collection
+    func onUpdateMovies() {
+        let movies = self.presenter.movies
+        self.resultsAmount.text = "\(String(describing: (movies?.totalResults)!)) results"
+        self.currentPage.text = "Page \(presenter.page) of \(String(describing: (movies?.totalPages)!))"
+        self.currentList.text = self.presenter.currentList
+        self.customList.reloadAllData()
     }
+    
+    func onChangeListKind() {
+        self.setListType()
+    }
+    
 }
+

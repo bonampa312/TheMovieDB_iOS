@@ -10,7 +10,7 @@ import Foundation
 
 class MovieFacade {
     
-    static func searchMoviesBy(name: String, page: Int, completion : @escaping (MovieList?) -> ()) {
+    func searchMoviesBy(name: String, page: Int, completion : @escaping (MovieList?) -> ()) {
         let searchByNameURL = ApplicationConstants.theMovieDBSearchByMovieNameURL
         let query = name.isEmpty ? "Finding Nemo" : name
         HTTPManager.searchMovies(url: searchByNameURL, query: query, page: 1, completion: { moviesResponse in
@@ -22,7 +22,7 @@ class MovieFacade {
         })
     }
     
-    static func searchMoviesBy(listTitle list: String, page: Int, completion : @escaping (MovieList?) -> ()) {
+    func searchMoviesBy(listTitle list: String, page: Int, completion : @escaping (MovieList?) -> ()) {
         
         var listURL : String = ""
         let query = ""
